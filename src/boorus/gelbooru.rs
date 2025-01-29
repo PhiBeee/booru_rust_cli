@@ -1,8 +1,9 @@
-use std::process;
+use std::{process,io::Write};
 
 pub struct GelbooruConfig {
     image_amount: i64,
     tags: String,
+    pid: i64,
     nsfw: bool
 }
 
@@ -14,6 +15,13 @@ impl GelbooruConfig {
         let image_amount = args[1].clone().parse::<i64>().unwrap();
         let tags = args[2].clone();
 
+        let pid;
+        if image_amount%100 != 0 {
+            pid = image_amount / 100 + 1;
+        } else {
+            pid = image_amount / 100;
+        }
+
         let mut nsfw= false;
         if args.len() > 3 {
             nsfw = !nsfw;
@@ -22,6 +30,7 @@ impl GelbooruConfig {
         Ok(GelbooruConfig{
                 image_amount,
                 tags,
+                pid,
                 nsfw
             }  
         )   
@@ -32,12 +41,19 @@ pub fn run(config: GelbooruConfig) {
     let mut tags = config.tags;
     // Add filter to only get sfw results if not specified otherwise
     if !config.nsfw {tags.push_str(" rating:general");}
-    // Format the get request using given parameters
-    let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}", config.image_amount, tags);
+    for page in 1..=config.pid {
 
-    // Get image urls
-    let images = get_images(get_request);
-    download_images(images);
+        // Little print so you can see progress in the CLI
+        print!("\r Currently downloading up to image: {page}00");
+        let _ = std::io::stdout().flush();
+        
+        // Format the get request using given parameters
+        let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", config.image_amount, tags, page);
+
+        // Get image urls
+        let images = get_images(get_request);
+        download_images(images);
+    }
 }
 
 #[tokio::main]
@@ -79,7 +95,7 @@ fn download_images(posts: Vec<GelbooruPost>) {
 
 fn check_file_path() -> std::io::Result<()>{
     match std::fs::exists("images/gelbooru/") {
-        Ok(true) => println!("Download folder exists already (images/gelbooru)"),
+        Ok(true) => (),
         Ok(false) => {
             println!("Making new folder to save images to (images/gelbooru)");
             std::fs::create_dir("images/gelbooru")?;
