@@ -2,7 +2,8 @@ use std::process;
 
 pub struct GelbooruConfig {
     image_amount: i64,
-    tags: String
+    tags: String,
+    nsfw: bool
 }
 
 impl GelbooruConfig {
@@ -13,17 +14,26 @@ impl GelbooruConfig {
         let image_amount = args[1].clone().parse::<i64>().unwrap();
         let tags = args[2].clone();
 
+        let mut nsfw= false;
+        if args.len() > 3 {
+            nsfw = !nsfw;
+        }
+
         Ok(GelbooruConfig{
                 image_amount,
                 tags,
+                nsfw
             }  
         )   
     }
 }
 
 pub fn run(config: GelbooruConfig) {
+    let mut tags = config.tags;
+    // Add filter to only get sfw results if not specified otherwise
+    if !config.nsfw {tags.push_str(" rating:general");}
     // Format the get request using given parameters
-    let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}", config.image_amount, config.tags);
+    let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}", config.image_amount, tags);
 
     // Get image urls
     let images = get_images(get_request);
