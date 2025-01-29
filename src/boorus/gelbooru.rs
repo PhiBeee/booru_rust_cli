@@ -1,3 +1,5 @@
+use std::process;
+
 pub struct GelbooruConfig {
     image_amount: i64,
     tags: String
@@ -41,6 +43,11 @@ async fn get_images(get_request: String) -> Vec<GelbooruPost>{
 }
 
 fn download_images(posts: Vec<GelbooruPost>) {
+    let _ = check_file_path().unwrap_or_else(|err| {
+        eprintln!("Problem with download directory: {err}");
+        process::exit(1);
+    });
+
     for post in posts {
         let image = post;
         
@@ -49,7 +56,7 @@ fn download_images(posts: Vec<GelbooruPost>) {
         
         // Format the filename
         let image_id = image.id.to_string();
-        let file_name = format!("images/{image_id}.{file_extension}");
+        let file_name = format!("images/gelbooru/{image_id}.{file_extension}");
 
         // Create the file to store the image
         let mut file = std::fs::File::create(file_name).unwrap();
@@ -58,6 +65,18 @@ fn download_images(posts: Vec<GelbooruPost>) {
             .copy_to(&mut file)
             .unwrap();
     }
+}
+
+fn check_file_path() -> std::io::Result<()>{
+    match std::fs::exists("images/gelbooru/") {
+        Ok(true) => println!("Download folder exists already (images/gelbooru)"),
+        Ok(false) => {
+            println!("Making new folder to save images to (images/gelbooru)");
+            std::fs::create_dir("images/gelbooru")?;
+        }
+        Err(err) => { return Err(err);}
+    }
+    Ok(())
 }
 
 // API structs so the responses are turned into structs which are nicer to deal with

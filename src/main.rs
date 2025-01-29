@@ -12,7 +12,26 @@ fn main() {
         process::exit(1);
     });
 
+    if check_main_folder_existance().is_err() {
+        eprintln!("Issue creating main folder for images, check permissions");
+        process::exit(1);
+    }
+
     run(config);   
+}
+
+// Checks if the main folder exists and if it does't makes it
+fn check_main_folder_existance() -> std::io::Result<()> {
+    match std::fs::exists("images/") {
+        Ok(true) => (),
+        Ok(false) => {
+            println!("Making main images folder (/images)");
+            std::fs::create_dir("images")?;
+        }
+        Err(err) => { return Err(err);}
+    }
+
+    Ok(())
 }
 
 
