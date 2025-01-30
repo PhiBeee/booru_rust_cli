@@ -4,16 +4,16 @@ pub struct GelbooruConfig {
     image_amount: i64,
     tags: String,
     pid: i64,
-    nsfw: bool
 }
 
 impl GelbooruConfig {
     pub fn build(args: &[String]) -> Result<GelbooruConfig, &'static str> {
-        if args.len() < 3 {
+        let arg_amount = args.len(); // Save this here to avoid recalculating it everytime
+        if arg_amount < 3 {
             return Err("Not enough arguments");
         }
         let image_amount = args[1].clone().parse::<i64>().unwrap();
-        let tags = args[2].clone();
+        let mut tags = args[2].clone();
 
         let pid;
         if image_amount%100 != 0 {
@@ -22,31 +22,35 @@ impl GelbooruConfig {
             pid = image_amount / 100;
         }
 
-        let mut nsfw= false;
-        if args.len() > 3 {
-            nsfw = !nsfw;
+        // handle extra optional args here
+        if arg_amount > 3 {
+            for i in 3..=arg_amount-1 {
+                let current_arg = args[i].as_str();
+                match current_arg {
+                    "nsfw" | "-n" => tags.push_str(" rating:explicit"),
+                    "sfw" | "-s" => tags.push_str(" rating:general"),
+                    _ => ()
+                }
+            }
         }
 
         Ok(GelbooruConfig{
                 image_amount,
                 tags,
                 pid,
-                nsfw
             }  
         )   
     }
 }
 
 pub fn run(config: GelbooruConfig) {
-    let mut tags = config.tags;
-    // Add filter to only get sfw results if not specified otherwise
-    if !config.nsfw {tags.push_str(" rating:general");}
-    for page in 1..=config.pid {
+    let tags = config.tags;
 
+    for page in 1..=config.pid {
         // Little print so you can see progress in the CLI
-        print!("\r Currently downloading up to image: {page}00");
+        print!("\rCurrently downloading up to image: {page}00");
         let _ = std::io::stdout().flush();
-        
+
         // Format the get request using given parameters
         let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", config.image_amount, tags, page);
 
@@ -54,6 +58,7 @@ pub fn run(config: GelbooruConfig) {
         let images = get_images(get_request);
         download_images(images);
     }
+    println!("\r\nFinished! You can find the images in images/gelbooru");
 }
 
 #[tokio::main]

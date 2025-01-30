@@ -4,8 +4,16 @@ use std::process;
 mod boorus;
 use boorus::*;
 
+mod help;
+use help::*;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 || args[1] == "-h" || args[1] == "help"{
+        help();
+        process::exit(1);
+    }
 
     let config = GelbooruConfig::build(&args).unwrap_or_else(|err|{
         eprintln!("Problem parsing arguments: {err}");
