@@ -14,6 +14,10 @@ git clone https://github.com/PhiBeee/booru_rust_cli.git
   
 Navigate to the directory and run:  
 ```
-cargo run -- <amount_of_images> <tags>
+cargo run -- <booru> <amount_of_images> <tags>
 ```  
-Images should then start downloading to `/images/gelbooru`
+Images should then start downloading to `/images/<booru>`  
+To get a full list of commands run:
+```
+cargo run -- help
+```
