@@ -21,7 +21,7 @@ pub fn help() {
     ";
 
     println!("{help_text}");
-    process::exit(1);
+    process::exit(0x0100);
 }
 
 pub fn gelbooru_options() {
@@ -34,7 +34,7 @@ pub fn gelbooru_options() {
     ";
 
     println!("{options_text}");
-    process::exit(1);
+    process::exit(0x0100);
 }
 
 pub fn safebooru_options() {
@@ -47,5 +47,5 @@ pub fn safebooru_options() {
     ";
 
     println!("{options_text}");
-    process::exit(1);
+    process::exit(0x0100);
 }
