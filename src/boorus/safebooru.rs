@@ -1,13 +1,13 @@
 use std::{process,io::Write};
 
-pub struct GelbooruConfig {
+pub struct SafebooruConfig {
     image_amount: i64,
     tags: String,
     pid: i64,
 }
 
-impl GelbooruConfig {
-    pub fn build(args: &[String]) -> Result<GelbooruConfig, &'static str> {
+impl SafebooruConfig {
+    pub fn build(args: &[String]) -> Result<SafebooruConfig, &'static str> {
         let arg_amount = args.len(); // Save this here to avoid recalculating it everytime
         if arg_amount < 2 {
             return Err("Not enough arguments");
@@ -16,10 +16,10 @@ impl GelbooruConfig {
         let mut tags = args[1].clone();
 
         let pid;
-        if image_amount%100 != 0 {
-            pid = image_amount / 100 + 1;
+        if image_amount%1000 != 0 {
+            pid = image_amount / 1000 + 1;
         } else {
-            pid = image_amount / 100;
+            pid = image_amount / 1000;
         }
 
         // handle extra optional args here
@@ -27,14 +27,14 @@ impl GelbooruConfig {
             for i in 2..=arg_amount-1 {
                 let current_arg = args[i].as_str();
                 match current_arg {
-                    "nsfw" | "-n" => tags.push_str(" rating:explicit"),
-                    "sfw" | "-s" => tags.push_str(" rating:general"),
+                    "safe" | "-s" => tags.push_str(" rating:general"),
+                    "questionable" | "-q" => tags.push_str(" rating:questionable"),
                     _ => ()
                 }
             }
         }
 
-        Ok(GelbooruConfig{
+        Ok(SafebooruConfig{
                 image_amount,
                 tags,
                 pid,
@@ -43,37 +43,37 @@ impl GelbooruConfig {
     }
 }
 
-pub fn run_gelbooru(config: GelbooruConfig) {
+pub fn run_safebooru(config: SafebooruConfig) {
     let tags = config.tags;
 
     for page in 0..config.pid {
         // Little print so you can see progress in the CLI
         let page_print = page + 1;
-        print!("\rCurrently downloading up to image: {page_print}00");
+        print!("\rCurrently downloading up to image: {page_print}000");
         let _ = std::io::stdout().flush();
 
         // Format the get request using given parameters
-        let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", config.image_amount, tags, page);
+        let get_request = format!("https://safebooru.org/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", config.image_amount, tags, page);
         // Get image urls
         let images = get_images(get_request);
         download_images(images);
     }
-    println!("\r\nFinished! You can find the images in images/gelbooru");
+    println!("\r\nFinished! You can find the images in images/safebooru");
 }
 
 #[tokio::main]
-async fn get_images(get_request: String) -> Vec<GelbooruPost>{
+async fn get_images(get_request: String) -> Vec<SafebooruPost>{
     let response = reqwest::get(get_request)
                 .await
                 .unwrap()
-                .json::<GelbooruAPI>()
+                .json::<Vec<SafebooruPost>>()
                 .await
                 .unwrap();
     
-    response.post
+    response
 }
 
-fn download_images(posts: Vec<GelbooruPost>) {
+fn download_images(posts: Vec<SafebooruPost>) {
     let _ = check_file_path().unwrap_or_else(|err| {
         eprintln!("Problem with download directory: {err}");
         process::exit(1);
@@ -87,7 +87,7 @@ fn download_images(posts: Vec<GelbooruPost>) {
         
         // Format the filename
         let image_id = image.id.to_string();
-        let file_name = format!("images/gelbooru/{image_id}.{file_extension}");
+        let file_name = format!("images/safebooru/{image_id}.{file_extension}");
 
         // Create the file to store the image
         let mut file = std::fs::File::create(file_name).unwrap();
@@ -99,25 +99,20 @@ fn download_images(posts: Vec<GelbooruPost>) {
 }
 
 fn check_file_path() -> std::io::Result<()>{
-    match std::fs::exists("images/gelbooru/") {
+    match std::fs::exists("images/safebooru/") {
         Ok(true) => (),
         Ok(false) => {
-            println!("Making new folder to save images to (images/gelbooru)");
-            std::fs::create_dir("images/gelbooru")?;
+            println!("Making new folder to save images to (images/safebooru)");
+            std::fs::create_dir("images/safebooru")?;
         }
         Err(err) => { return Err(err);}
     }
     Ok(())
 }
 
-// API structs so the responses are turned into structs which are nicer to deal with
-#[derive(serde::Deserialize, Debug)]
-struct GelbooruAPI {
-	post: Vec<GelbooruPost>,
-}
 
 #[derive(serde::Deserialize, Debug)]
-struct GelbooruPost {
-    file_url: String,
-    id: i64
+struct SafebooruPost {
+    id: i64,
+	file_url: String,
 }

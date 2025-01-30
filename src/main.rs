@@ -8,24 +8,62 @@ mod help;
 use help::*;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 || args[1] == "-h" || args[1] == "help"{
-        help();
-        process::exit(1);
-    }
-
-    let config = GelbooruConfig::build(&args).unwrap_or_else(|err|{
-        eprintln!("Problem parsing arguments: {err}");
-        process::exit(1);
-    });
-
     if check_main_folder_existance().is_err() {
         eprintln!("Issue creating main folder for images, check permissions");
         process::exit(1);
     }
 
-    run(config);   
+    let args: Vec<String> = env::args().collect();
+    // print out help message if no commands were provided
+    if args.len() < 2 { help(); }
+
+    match args[1].as_str() {
+        "help" | "-h" => help(),
+        "gelbooru" | "-g" => {
+            // Make sure user gave enough parameters to avoid IOB
+            if args.len() > 2 {
+                // Check if user wanted to get the help message instead
+                match args[2].as_str() {
+                    "help" | "-h" => gelbooru_options(),
+                    _ => (),
+                }
+                let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+            
+                run_gelbooru(config);  
+            }
+            else {
+                eprintln!("Please specify amount and tags or help command.");
+                process::exit(1);
+            }
+        },
+        "safebooru" | "-s" => {
+            // Make sure user gave enough parameters to avoid IOB
+            if args.len() > 2 {
+                // Check if user wanted to get the help message instead
+                match args[2].as_str() {
+                    "help" | "-h" => safebooru_options(),
+                    _ => (),
+                }
+                let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+            
+                run_safebooru(config); 
+            }
+            else {
+                eprintln!("Please specify amount and tags or help command.");
+                process::exit(1);
+            }
+        },
+        _ => {
+            println!("Please specify which booru to use ");
+            process::exit(1);
+        }
+    }    
 }
 
 // Checks if the main folder exists and if it does't makes it
