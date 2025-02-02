@@ -27,7 +27,7 @@ impl SafebooruConfig {
             for i in 2..=arg_amount-1 {
                 let current_arg = args[i].as_str();
                 match current_arg {
-                    "safe" | "-s" => tags.push_str(" rating:general"),
+                    "safe" | "-sfw" => tags.push_str(" rating:general"),
                     "questionable" | "-q" => tags.push_str(" rating:questionable"),
                     _ => ()
                 }

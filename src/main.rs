@@ -59,6 +59,24 @@ fn main() {
                 process::exit(1);
             }
         },
+        "e621" | "-e" => {
+            if args.len() > 2 {
+                match args[2].as_str() {
+                    "help" | "-h" => e621_options(),
+                    _ => (),
+                }
+                let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+
+                run_e621(config);
+            }
+            else {
+                eprintln!("Please specify amount and tags or help command.");
+                process::exit(1);
+            }
+        },
         _ => {
             println!("Please specify which booru to use ");
             process::exit(1);
