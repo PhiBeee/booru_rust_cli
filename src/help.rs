@@ -10,6 +10,7 @@ pub fn help() {
     [BOORU]\n
     gelbooru, -g        Get images from gelbooru.com\n
     safebooru, -s       Get images from safebooru.org\n
+    e621, -e            Get images from e621.net\n
     [OPTIONS]\n
     Check respective booru help command for detailed list of options.\n
     \n

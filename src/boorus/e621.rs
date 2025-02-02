@@ -96,20 +96,25 @@ fn download_images(posts: E621Posts ) {
 
     for post in posts.posts {
         let image = post;
-        
-        // Get file extension
-        let (_, file_extension) = image.file.url.rsplit_once(".").unwrap();
-        
-        // Format the filename
-        let image_id = image.id.to_string();
-        let file_name = format!("images/e621/{image_id}.{file_extension}");
 
-        // Create the file to store the image
-        let mut file = std::fs::File::create(file_name).unwrap();
-        reqwest::blocking::get(image.file.url)
-            .unwrap()
-            .copy_to(&mut file)
-            .unwrap();
+        match image.file.url {
+            Some(url) => {
+                // Get file extension
+                let (_, file_extension) = url.rsplit_once(".").unwrap();
+                
+                // Format the filename
+                let image_id = image.id.to_string();
+                let file_name = format!("images/e621/{image_id}.{file_extension}");
+
+                // Create the file to store the image
+                let mut file = std::fs::File::create(file_name).unwrap();
+                reqwest::blocking::get(url)
+                    .unwrap()
+                    .copy_to(&mut file)
+                    .unwrap();
+                },
+            None => (),
+        }
     }
 }
 
@@ -138,5 +143,5 @@ struct E621Post {
 
 #[derive(serde::Deserialize, Debug)]
 struct E621File {
-    url: String,
+    url: Option<String>,
 }
