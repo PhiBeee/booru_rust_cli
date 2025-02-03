@@ -3,7 +3,7 @@
 There is a lot of tools like this but I haven't found one in Rust, so I just decided to make my own.  
 I like to run things from my terminal so that's what this will be.  
 # Usage
-Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/0.1/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/0.1/booru_cli)  
+Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/0.1.1/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/0.1/booru_cli)  
 
 Navigate to where the file was downloaded (usually `cd Downloads`) and then
 ```
