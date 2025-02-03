@@ -44,19 +44,25 @@ impl GelbooruConfig {
 }
 
 pub fn run_gelbooru(config: GelbooruConfig) {
+    let _ = check_file_path().unwrap_or_else(|err| {
+        eprintln!("Problem with download directory: {err}");
+        process::exit(1);
+    });
+
     let tags = config.tags;
+    let mut images_left = config.image_amount;
 
     for page in 0..config.pid {
         // Little print so you can see progress in the CLI
-        let page_print = page + 1;
-        print!("\rCurrently downloading up to image: {page_print}00");
+        print!("\rImages left to download: {images_left}");
         let _ = std::io::stdout().flush();
 
         // Format the get request using given parameters
-        let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", config.image_amount, tags, page);
+        let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", images_left, tags, page);
         // Get image urls
         let images = get_images(get_request);
         download_images(images);
+        images_left -= 100;
     }
     println!("\r\nFinished! You can find the images in images/gelbooru");
 }
@@ -74,11 +80,6 @@ async fn get_images(get_request: String) -> Vec<GelbooruPost>{
 }
 
 fn download_images(posts: Vec<GelbooruPost>) {
-    let _ = check_file_path().unwrap_or_else(|err| {
-        eprintln!("Problem with download directory: {err}");
-        process::exit(1);
-    });
-
     for post in posts {
         let image = post;
         

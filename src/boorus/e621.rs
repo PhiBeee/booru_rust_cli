@@ -53,22 +53,26 @@ impl E621Config {
 }
 
 pub fn run_e621(config: E621Config) {
+    let _ = check_file_path().unwrap_or_else(|err| {
+        eprintln!("Problem with download directory: {err}");
+        process::exit(1);
+    });
+
     let tags = config.tags;
+    let mut images_left = config.image_amount;
 
     for page in 1..=config.pid {
         // Little print so you can see progress in the CLI
-        let page_print = page*2;
-        print!("\rCurrently downloading up to image: {page_print}00");
+        print!("\rImages left to download: {images_left}");
         let _ = std::io::stdout().flush();
 
-        println!("{tags}");
-
         // Format the get request using given parameters
-        let get_request = format!("https://e621.net/posts.json?limit={}&tags={}&page={}", config.image_amount, tags, page);
+        let get_request = format!("https://e621.net/posts.json?limit={}&tags={}&page={}", images_left, tags, page);
         // test_request(get_request);
         // Get image urls
         let images = get_images(get_request);
         download_images(images);
+        images_left -= 320;
     }
     println!("\r\nFinished! You can find the images in images/e621");
 }
@@ -89,11 +93,6 @@ async fn get_images(get_request: String) -> E621Posts {
 }
 
 fn download_images(posts: E621Posts ) {
-    let _ = check_file_path().unwrap_or_else(|err| {
-        eprintln!("Problem with download directory: {err}");
-        process::exit(1);
-    });
-
     for post in posts.posts {
         let image = post;
 

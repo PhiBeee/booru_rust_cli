@@ -19,69 +19,62 @@ fn main() {
 
     match args[1].as_str() {
         "help" | "-h" => help(),
-        "gelbooru" | "-g" => {
-            // Make sure user gave enough parameters to avoid IOB
-            if args.len() > 2 {
-                // Check if user wanted to get the help message instead
-                match args[2].as_str() {
-                    "help" | "-h" => gelbooru_options(),
-                    _ => (),
-                }
-                let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-            
-                run_gelbooru(config);  
-            }
-            else {
-                eprintln!("Please specify amount and tags or help command.");
-                process::exit(1);
-            }
-        },
         "safebooru" | "-s" => {
-            // Make sure user gave enough parameters to avoid IOB
-            if args.len() > 2 {
-                // Check if user wanted to get the help message instead
-                match args[2].as_str() {
-                    "help" | "-h" => safebooru_options(),
-                    _ => (),
-                }
-                let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-            
-                run_safebooru(config); 
-            }
-            else {
-                eprintln!("Please specify amount and tags or help command.");
-                process::exit(1);
-            }
+            check_args_for_booru(0, &args);
+        },
+        "gelbooru" | "-g" => {
+            check_args_for_booru(1, &args);
         },
         "e621" | "-e" => {
-            if args.len() > 2 {
-                match args[2].as_str() {
-                    "help" | "-h" => e621_options(),
-                    _ => (),
-                }
-                let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-
-                run_e621(config);
-            }
-            else {
-                eprintln!("Please specify amount and tags or help command.");
-                process::exit(1);
-            }
+            check_args_for_booru(2, &args);
         },
         _ => {
             println!("Please specify which booru to use ");
             process::exit(1);
         }
     }    
+}
+
+fn check_args_for_booru(booru: i8, args: &[String]) {
+    // Avoid IOB
+    if args.len() > 2 {
+        if args[2].as_str() == "help" || args[2].as_str() == "-h" {
+            match booru {
+                0 => safebooru_options(),
+                1 => gelbooru_options(),
+                2 => e621_options(),
+                _ => (),
+            }
+        }
+        match booru {
+            0 => {
+                let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+                run_safebooru(config);
+            },
+            1 => {
+                let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+                run_gelbooru(config);
+            },
+            2 => {
+                let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
+                    eprintln!("Problem parsing arguments: {err}");
+                    process::exit(1);
+                });
+                run_e621(config);
+            }
+            _ => (), // This function should never land here 
+        }
+    }
+    else {
+        eprintln!("Please specify amount and tags or help command.");
+        process::exit(1);
+    }
 }
 
 // Checks if the main folder exists and if it does't makes it
