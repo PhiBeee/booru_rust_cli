@@ -62,17 +62,15 @@ pub fn run_e621(config: E621Config) {
     let mut images_left = config.image_amount;
 
     for page in 1..=config.pid {
-        // Little print so you can see progress in the CLI
-        print!("\rImages left to download: {images_left}");
-        let _ = std::io::stdout().flush();
-
         // Format the get request using given parameters
         let get_request = format!("https://e621.net/posts.json?limit={}&tags={}&page={}", images_left, tags, page);
-        // test_request(get_request);
         // Get image urls
         let images = get_images(get_request);
-        download_images(images);
-        images_left -= 320;
+
+        let length = images.posts.len() as i64;
+        if length < images_left { images_left = length};
+
+        images_left = download_images(images, images_left);
     }
     println!("\r\nFinished! You can find the images in images/e621");
 }
@@ -92,10 +90,12 @@ async fn get_images(get_request: String) -> E621Posts {
     response
 }
 
-fn download_images(posts: E621Posts ) {
+fn download_images(posts: E621Posts, mut images_left: i64) -> i64{
     for post in posts.posts {
         let image = post;
-
+        // Little print so you can see progress in the CLI
+        print!("\rImages left to download: {images_left}    ");
+        let _ = std::io::stdout().flush();
         match image.file.url {
             Some(url) => {
                 // Get file extension
@@ -114,7 +114,9 @@ fn download_images(posts: E621Posts ) {
                 },
             None => (),
         }
+        images_left -= 1;
     }
+    images_left
 }
 
 fn check_file_path() -> std::io::Result<()>{

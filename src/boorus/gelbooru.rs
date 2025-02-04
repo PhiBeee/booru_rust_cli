@@ -53,16 +53,13 @@ pub fn run_gelbooru(config: GelbooruConfig) {
     let mut images_left = config.image_amount;
 
     for page in 0..config.pid {
-        // Little print so you can see progress in the CLI
-        print!("\rImages left to download: {images_left}");
-        let _ = std::io::stdout().flush();
-
         // Format the get request using given parameters
         let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", images_left, tags, page);
         // Get image urls
         let images = get_images(get_request);
-        download_images(images);
-        images_left -= 100;
+        let length = images.len() as i64;
+        if length < images_left { images_left = length};
+        images_left = download_images(images, images_left);
     }
     println!("\r\nFinished! You can find the images in images/gelbooru");
 }
@@ -79,9 +76,13 @@ async fn get_images(get_request: String) -> Vec<GelbooruPost>{
     response.post
 }
 
-fn download_images(posts: Vec<GelbooruPost>) {
+fn download_images(posts: Vec<GelbooruPost>, mut images_left: i64) -> i64 {
     for post in posts {
         let image = post;
+
+        // Little print so you can see progress in the CLI
+        print!("\rImages left to download: {images_left}    ");
+        let _ = std::io::stdout().flush();
         
         // Get file extension
         let (_, file_extension) = image.file_url.rsplit_once(".").unwrap();
@@ -96,7 +97,10 @@ fn download_images(posts: Vec<GelbooruPost>) {
             .unwrap()
             .copy_to(&mut file)
             .unwrap();
+
+        images_left -= 1;
     }
+    images_left
 }
 
 fn check_file_path() -> std::io::Result<()>{
