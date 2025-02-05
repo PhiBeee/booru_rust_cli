@@ -2,6 +2,11 @@
 
 There is a lot of tools like this but I haven't found one in Rust, so I just decided to make my own.  
 I like to run things from my terminal so that's what this will be.  
+# Features
+- Specify amount of images to download
+- Specify tags, however you want (as long as they exist on the booru)
+- Sorting results by rating, upload date and other metrics
+- Filter between explicit, questionable and sfw results
 # Supported Boorus
 - [Safebooru](https://safebooru.org)
 - [Gelbooru](https://gelbooru.com)
@@ -16,9 +21,9 @@ booru_cli -h
 to get a list of commands.  
 The basic structure is:
 ```
-booru_cli <Booru> <amount> <tags> [OPTIONS]
+booru_cli <booru> <amount> <tags> [OPTIONS]
 ```
-You can find more in-depth commands with the help commands listed above.
+You can find more in-depth commands with the help command listed above.
 
 # Compiling from source
 
@@ -34,3 +39,6 @@ Navigate to the directory and run:
 cargo build -r
 ```  
 This should create an executable in the target folder.
+# To-do's
+- Allow skipping n first results
+- Add support for more image websites

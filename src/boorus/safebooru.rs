@@ -77,8 +77,8 @@ pub fn run_safebooru(config: SafebooruConfig) {
 async fn get_images(get_request: String) -> Vec<SafebooruPost>{
     let response = reqwest::get(get_request)
                 .await
-                .unwrap_or_else(|err| {
-                    eprintln!("Error getting the request: {err}");
+                .unwrap_or_else(|err|{
+                    eprintln!("Error getting a response from the API: {err}");
                     process::exit(1);
                 })
                 .json::<Vec<SafebooruPost>>()

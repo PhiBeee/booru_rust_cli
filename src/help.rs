@@ -1,13 +1,11 @@
-use std::process;
-
 pub fn help() {
     let help_text =
     "
     booru_cli is a CLI script that allows you to download images in batches from booru sites.\n
     \n
-    Usage: booru_cli [BOORU] <amount> <tags> [OPTIONS]\n
+    Usage: booru_cli <booru> <amount> <tags> [OPTIONS]\n
     \n
-    [BOORU]\n
+    <BOORU>\n
     gelbooru, -g        Get images from gelbooru.com\n
     safebooru, -s       Get images from safebooru.org\n
     e621, -e            Get images from e621.net\n
@@ -23,7 +21,6 @@ pub fn help() {
     ";
 
     println!("{help_text}");
-    process::exit(0x0100);
 }
 
 pub fn gelbooru_options() {

@@ -13,14 +13,17 @@ impl E621Config {
         if arg_amount < 2 {
             return Err("Not enough arguments");
         }
-        let image_amount = args[0].clone().parse::<i64>().unwrap();
+        let image_amount = args[0].clone().parse::<i64>().unwrap_or_else(|_|{
+            eprintln!("Your first parameter is not a number!");
+            process::exit(1);
+        });
         let mut tags = args[1].clone();
 
         let pid;
-        if image_amount%200 != 0 {
-            pid = image_amount / 200 + 1;
+        if image_amount%320 != 0 {
+            pid = image_amount / 320 + 1;
         } else {
-            pid = image_amount / 200;
+            pid = image_amount / 320;
         }
 
         // handle extra optional args here
@@ -82,10 +85,16 @@ async fn get_images(get_request: String) -> E621Posts {
                 .header(USER_AGENT, "booru_cli/0.1 (by AnotherDogGirl on e621)")
                 .send()
                 .await
-                .unwrap()
+                .unwrap_or_else(|err|{
+                    eprintln!("Error getting a response from the API: {err}");
+                    process::exit(1);
+                })
                 .json::<E621Posts>()
                 .await
-                .unwrap();
+                .unwrap_or_else(|err|{
+                    eprintln!("No posts under the given tags, double check they exist or make the search less specifc: {err}");
+                    process::exit(1);
+                });
     
     response
 }
