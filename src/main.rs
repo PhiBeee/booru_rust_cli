@@ -16,23 +16,24 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     // print out help message if no commands were provided
     if args.len() < 2 { help(); }
-
-    match args[1].as_str() {
-        "help" | "-h" => help(),
-        "safebooru" | "-s" => {
-            check_args_for_booru(0, &args);
-        },
-        "gelbooru" | "-g" => {
-            check_args_for_booru(1, &args);
-        },
-        "e621" | "-e" => {
-            check_args_for_booru(2, &args);
-        },
-        _ => {
-            println!("Please specify which booru to use ");
-            process::exit(1);
-        }
-    }    
+    else {
+        match args[1].as_str() {
+            "help" | "-h" => help(),
+            "safebooru" | "-s" => {
+                check_args_for_booru(0, &args);
+            },
+            "gelbooru" | "-g" => {
+                check_args_for_booru(1, &args);
+            },
+            "e621" | "-e" => {
+                check_args_for_booru(2, &args);
+            },
+            _ => {
+                println!("Please specify which booru to use ");
+                process::exit(1);
+            }
+        }    
+    }
 }
 
 fn check_args_for_booru(booru: i8, args: &[String]) {
@@ -46,29 +47,31 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
                 _ => (),
             }
         }
-        match booru {
-            0 => {
-                let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-                run_safebooru(config);
-            },
-            1 => {
-                let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-                run_gelbooru(config);
-            },
-            2 => {
-                let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
-                    eprintln!("Problem parsing arguments: {err}");
-                    process::exit(1);
-                });
-                run_e621(config);
+        else {
+            match booru {
+                0 => {
+                    let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                        eprintln!("Problem parsing arguments: {err}");
+                        process::exit(1);
+                    });
+                    run_safebooru(config);
+                },
+                1 => {
+                    let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                        eprintln!("Problem parsing arguments: {err}");
+                        process::exit(1);
+                    });
+                    run_gelbooru(config);
+                },
+                2 => {
+                    let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
+                        eprintln!("Problem parsing arguments: {err}");
+                        process::exit(1);
+                    });
+                    run_e621(config);
+                }
+                _ => (), // This function should never land here 
             }
-            _ => (), // This function should never land here 
         }
     }
     else {

@@ -28,7 +28,11 @@ impl GelbooruConfig {
                 let current_arg = args[i].as_str();
                 match current_arg {
                     "nsfw" | "-n" => tags.push_str(" rating:explicit"),
-                    "sfw" | "-s" => tags.push_str(" rating:general"),
+                    "safe" | "-sfw" => tags.push_str(" rating:general"),
+                    "+score" | "+s" => tags.push_str(" sort:score:asc"),
+                    "-score" | "-s" => tags.push_str(" sort:score:desc"),
+                    "oldest" | "-o" => tags.push_str(" sort:id:asc"),
+                    "newest" | "-ns" => tags.push_str(" sort:id:desc"),
                     _ => ()
                 }
             }
@@ -102,6 +106,8 @@ fn download_images(posts: Vec<GelbooruPost>, mut images_left: i64) -> i64 {
     }
     images_left
 }
+
+// TODO: skip amount of images
 
 fn check_file_path() -> std::io::Result<()>{
     match std::fs::exists("images/gelbooru/") {

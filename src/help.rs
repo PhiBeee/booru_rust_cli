@@ -5,7 +5,7 @@ pub fn help() {
     "
     booru_cli is a CLI script that allows you to download images in batches from booru sites.\n
     \n
-    Usage: cargo run -- [BOORU] <amount> <tags> [OPTIONS]\n
+    Usage: booru_cli [BOORU] <amount> <tags> [OPTIONS]\n
     \n
     [BOORU]\n
     gelbooru, -g        Get images from gelbooru.com\n
@@ -14,7 +14,7 @@ pub fn help() {
     [OPTIONS]\n
     Check respective booru help command for detailed list of options.\n
     \n
-    Help command:\n
+    Help commands:\n
     \n
     help, -h            Will show you this print\n
     safebooru help/-h   Will show you the options for safebooru\n
@@ -31,12 +31,15 @@ pub fn gelbooru_options() {
     "
     [OPTIONS]\n
     nsfw, -n            This will return only nsfw images\n
-    sfw, -s             This will return only sfw images\n
+    safe, -sfw          This will return only sfw images\n
     If you want to download any type of image don't add any of the above options\n
+    +score, +s          This will sort by ascending score, giving you posts with the lowest score first\n
+    -score, -s          This will sort by descending score, giving you posts with the highest score first\n
+    oldest, -o          This will return the earliest posts first\n
+    newest, -ns         This will return the newest posts first\n
     ";
 
     println!("{options_text}");
-    process::exit(0x0100);
 }
 
 pub fn safebooru_options() {
@@ -46,10 +49,13 @@ pub fn safebooru_options() {
     questionable, -q    This will return only questionable images\n
     safe, -sfw          This will return only sfw images\n
     If you want to download any type of image don't add any of the above options\n
+    +score, +s          This will sort by ascending score, giving you posts with the lowest score first\n
+    -score, -s          This will sort by descending score, giving you posts with the highest score first\n
+    oldest, -o          This will return the earliest posts first\n
+    newest, -ns         This will return the newest posts first\n
     ";
 
     println!("{options_text}");
-    process::exit(0x0100);
 }
 
 pub fn e621_options() {
@@ -71,5 +77,4 @@ pub fn e621_options() {
     ";
 
     println!("{options_text}");
-    process::exit(0x0100);
 }

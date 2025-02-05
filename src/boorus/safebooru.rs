@@ -12,7 +12,10 @@ impl SafebooruConfig {
         if arg_amount < 2 {
             return Err("Not enough arguments");
         }
-        let image_amount = args[0].clone().parse::<i64>().unwrap();
+        let image_amount = args[0].clone().parse::<i64>().unwrap_or_else(|_|{
+            eprintln!("Your first parameter is not a number!");
+            process::exit(1);
+        });
         let mut tags = args[1].clone();
 
         let pid;
@@ -29,6 +32,10 @@ impl SafebooruConfig {
                 match current_arg {
                     "safe" | "-sfw" => tags.push_str(" rating:general"),
                     "questionable" | "-q" => tags.push_str(" rating:questionable"),
+                    "+score" | "+s" => tags.push_str(" sort:score:asc"),
+                    "-score" | "-s" => tags.push_str(" sort:score:desc"),
+                    "oldest" | "-o" => tags.push_str(" sort:id:asc"),
+                    "newest" | "-ns" => tags.push_str(" sort:id:desc"),
                     _ => ()
                 }
             }
@@ -70,10 +77,16 @@ pub fn run_safebooru(config: SafebooruConfig) {
 async fn get_images(get_request: String) -> Vec<SafebooruPost>{
     let response = reqwest::get(get_request)
                 .await
-                .unwrap()
+                .unwrap_or_else(|err| {
+                    eprintln!("Error getting the request: {err}");
+                    process::exit(1);
+                })
                 .json::<Vec<SafebooruPost>>()
                 .await
-                .unwrap();
+                .unwrap_or_else(|err|{
+                    eprintln!("No posts under the given tags, double check they exist or make the search less specifc: {err}");
+                    process::exit(1);
+                });
     
     response
 }
