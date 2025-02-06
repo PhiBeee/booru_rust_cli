@@ -40,5 +40,4 @@ cargo build -r
 ```  
 This should create an executable in the target folder.
 # To-do's
-- Allow skipping n first results
 - Add support for more image websites
