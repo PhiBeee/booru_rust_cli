@@ -10,7 +10,8 @@ pub fn help() {
     safebooru, -s       Get images from safebooru.org\n
     e621, -e            Get images from e621.net\n
     [OPTIONS]\n
-    Check respective booru help command for detailed list of options.\n
+    skip <amount>       Skip the first <amount> images\n
+    Check the respective booru help command for detailed list of options.\n
     \n
     Help commands:\n
     \n

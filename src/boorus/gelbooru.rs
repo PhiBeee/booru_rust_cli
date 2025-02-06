@@ -1,9 +1,12 @@
 use std::{process,io::Write};
 
+const REQUEST_CAP: i64 = 100; 
+
 pub struct GelbooruConfig {
     image_amount: i64,
     tags: String,
     pid: i64,
+    images_to_skip: i64,
 }
 
 impl GelbooruConfig {
@@ -18,13 +21,7 @@ impl GelbooruConfig {
         });
         let mut tags = args[1].clone();
 
-        let pid;
-        if image_amount%100 != 0 {
-            pid = image_amount / 100 + 1;
-        } else {
-            pid = image_amount / 100;
-        }
-
+        let mut images_to_skip= 0;
         // handle extra optional args here
         if arg_amount > 2 {
             for i in 2..=arg_amount-1 {
@@ -36,15 +33,42 @@ impl GelbooruConfig {
                     "-score" | "-s" => tags.push_str(" sort:score:desc"),
                     "oldest" | "-o" => tags.push_str(" sort:id:asc"),
                     "newest" | "-ns" => tags.push_str(" sort:id:desc"),
+                    "skip"                => {
+                        // Make sure there is at least one more arg in the array
+                        if arg_amount >= i+2 { 
+                            images_to_skip = args[i+1].clone().parse::<i64>().unwrap_or_else(|err| {
+                                eprintln!("Please specify an amount of images to be skipped: {err}");
+                                process::exit(1);
+                            })
+                        }
+                        // Let the user know 
+                        else { println!("No amount was given after the skip option, no images will be skipped") };
+                    }
                     _ => ()
                 }
             }
+        }
+
+        let mut pid;
+        if image_amount%REQUEST_CAP != 0 {
+            pid = image_amount / REQUEST_CAP + 1;
+        } else {
+            pid = image_amount / REQUEST_CAP;
+        }
+
+        if images_to_skip%REQUEST_CAP != 0 {
+            if images_to_skip > REQUEST_CAP {
+                pid += images_to_skip / REQUEST_CAP + 1;
+            }
+        } else {
+            pid += images_to_skip / REQUEST_CAP;
         }
 
         Ok(GelbooruConfig{
                 image_amount,
                 tags,
                 pid,
+                images_to_skip,
             }  
         )   
     }
@@ -58,15 +82,30 @@ pub fn run_gelbooru(config: GelbooruConfig) {
 
     let tags = config.tags;
     let mut images_left = config.image_amount;
+    // Rust rounds down no matter what so this is great
+    let skipped_pages = config.images_to_skip / REQUEST_CAP;
+    // Make sure we only have the amount left that is needed
+    let mut images_to_skip = config.images_to_skip - (skipped_pages * REQUEST_CAP);
+    // Make sure we get enough images in case the amount requested is lower than the get cap
+    if images_left < REQUEST_CAP { images_left += images_to_skip };
 
     for page in 0..config.pid {
         // Format the get request using given parameters
         let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", images_left, tags, page);
         // Get image urls
-        let images = get_images(get_request);
+        let mut images = get_images(get_request);
+
         let length = images.len() as i64;
         if length < images_left { images_left = length};
+
+        // Remove the amount of images to skip from the results
+        if images_to_skip != 0 { 
+            images.drain(0..images_to_skip as usize);
+            images_left -= images_to_skip;
+        };
+
         images_left = download_images(images, images_left);
+        images_to_skip = 0;
     }
     println!("\r\nFinished! You can find the images in images/gelbooru");
 }

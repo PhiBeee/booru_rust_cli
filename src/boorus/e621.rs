@@ -1,10 +1,13 @@
 use std::{process,io::Write};
 use reqwest::header::*;
 
+const REQUEST_CAP: i64 = 320;
+
 pub struct E621Config {
     image_amount: i64,
     tags: String,
     pid: i64,
+    images_to_skip: i64,
 }
 
 impl E621Config {
@@ -19,12 +22,7 @@ impl E621Config {
         });
         let mut tags = args[1].clone();
 
-        let pid;
-        if image_amount%320 != 0 {
-            pid = image_amount / 320 + 1;
-        } else {
-            pid = image_amount / 320;
-        }
+        let mut images_to_skip = 0;
 
         // handle extra optional args here
         if arg_amount > 2 {
@@ -40,16 +38,43 @@ impl E621Config {
                     "jpg"                 => tags.push_str(" type:jpg"),
                     "png"                 => tags.push_str(" type:png"),  
                     "webm"                => tags.push_str(" type:webm"),
-                    "gif"                 => tags.push_str(" type:gif"),     
+                    "gif"                 => tags.push_str(" type:gif"),   
+                    "skip"                => {
+                        // Make sure there is at least one more arg in the array
+                        if arg_amount >= i+2 { 
+                            images_to_skip = args[i+1].clone().parse::<i64>().unwrap_or_else(|err| {
+                                eprintln!("Please specify an amount of images to be skipped: {err}");
+                                process::exit(1);
+                            })
+                        }
+                        // Let the user know 
+                        else { println!("No amount was given after the skip option, no images will be skipped") };
+                    }  
                     _ => ()
                 }
             }
+        }
+
+        let mut pid;
+        if image_amount%REQUEST_CAP != 0 {
+            pid = image_amount / REQUEST_CAP + 1;
+        } else {
+            pid = image_amount / REQUEST_CAP;
+        }
+
+        if images_to_skip%REQUEST_CAP != 0 {
+            if images_to_skip > REQUEST_CAP {
+                pid += images_to_skip / REQUEST_CAP + 1;
+            }
+        } else {
+            pid += images_to_skip / REQUEST_CAP;
         }
 
         Ok(E621Config{
                 image_amount,
                 tags,
                 pid,
+                images_to_skip,
             }  
         )   
     }
@@ -63,17 +88,30 @@ pub fn run_e621(config: E621Config) {
 
     let tags = config.tags;
     let mut images_left = config.image_amount;
+    // Rust rounds down no matter what so this is great
+    let skipped_pages = config.images_to_skip / REQUEST_CAP;
+    // Make sure we only have the amount left that is needed
+    let mut images_to_skip = config.images_to_skip - (skipped_pages * REQUEST_CAP);
+    // Make sure we get enough images in case the amount requested is lower than the get cap
+    if images_left < REQUEST_CAP { images_left += images_to_skip };
 
     for page in 1..=config.pid {
         // Format the get request using given parameters
         let get_request = format!("https://e621.net/posts.json?limit={}&tags={}&page={}", images_left, tags, page);
         // Get image urls
-        let images = get_images(get_request);
+        let mut images = get_images(get_request).posts;
 
-        let length = images.posts.len() as i64;
+        let length = images.len() as i64;
         if length < images_left { images_left = length};
 
+        // Remove the amount of images to skip from the results
+        if images_to_skip != 0 { 
+            images.drain(0..images_to_skip as usize);
+            images_left -= images_to_skip;
+        };
+
         images_left = download_images(images, images_left);
+        images_to_skip = 0;
     }
     println!("\r\nFinished! You can find the images in images/e621");
 }
@@ -99,8 +137,8 @@ async fn get_images(get_request: String) -> E621Posts {
     response
 }
 
-fn download_images(posts: E621Posts, mut images_left: i64) -> i64{
-    for post in posts.posts {
+fn download_images(posts: Vec<E621Post>, mut images_left: i64) -> i64{
+    for post in posts {
         let image = post;
         // Little print so you can see progress in the CLI
         print!("\rImages left to download: {images_left}    ");
