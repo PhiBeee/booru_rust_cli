@@ -28,6 +28,9 @@ fn main() {
             "e621" | "-e" => {
                 check_args_for_booru(2, &args);
             },
+            "konachan" | "-k" => {
+                check_args_for_booru(3, &args);
+            }
             _ => {
                 println!("Please specify which booru to use ");
                 process::exit(1);
@@ -44,6 +47,7 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
                 0 => safebooru_options(),
                 1 => gelbooru_options(),
                 2 => e621_options(),
+                3 => konachan_options(),
                 _ => (),
             }
         }
@@ -69,6 +73,13 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
                         process::exit(1);
                     });
                     run_e621(config);
+                }
+                3 => {
+                    let config = KonachanConfig::build(&args[2..]).unwrap_or_else(|err|{
+                        eprintln!("Problem parsing arguments: {err}");
+                        process::exit(1);
+                    });
+                    run_konachan(config);
                 }
                 _ => (), // This function should never land here 
             }

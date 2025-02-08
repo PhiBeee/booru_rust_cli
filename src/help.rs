@@ -31,6 +31,7 @@ pub fn gelbooru_options() {
     nsfw, -n            This will return only nsfw images\n
     safe, -sfw          This will return only sfw images\n
     If you want to download any type of image don't add any of the above options\n
+    Filtering:\n
     +score, +s          This will sort by ascending score, giving you posts with the lowest score first\n
     -score, -s          This will sort by descending score, giving you posts with the highest score first\n
     oldest, -o          This will return the earliest posts first\n
@@ -47,6 +48,7 @@ pub fn safebooru_options() {
     questionable, -q    This will return only questionable images\n
     safe, -sfw          This will return only sfw images\n
     If you want to download any type of image don't add any of the above options\n
+    Filtering:\n
     +score, +s          This will sort by ascending score, giving you posts with the lowest score first\n
     -score, -s          This will sort by descending score, giving you posts with the highest score first\n
     oldest, -o          This will return the earliest posts first\n
@@ -72,6 +74,25 @@ pub fn e621_options() {
     File type:\n
     You can optionally add one or multiple filetypes to filter by to only download those types.\n
     Supported types: png, jpg, gif, webm\n    
+    ";
+
+    println!("{options_text}");
+}
+
+pub fn konachan_options() {
+    let options_text = 
+    "
+    [OPTIONS]\n
+    safe, -sfw          This will return only sfw images\n
+    questionable, -q    This will return only sfw images\n
+    If you want to download any type of image don't add any of the above options\n
+    Filtering:\n
+    +score, +s          This will sort by ascending score, giving you posts with the lowest score first\n
+    -score, -s          This will sort by descending score, giving you posts with the highest score first\n
+    oldest, -o          This will return the earliest posts first\n
+    newest, -ns         This will return the newest posts first\n
+    landscape, -l       This will return landscape images first\n
+    portrait, -p        This will return portrait images first\n
     ";
 
     println!("{options_text}");
