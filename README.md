@@ -12,7 +12,7 @@ I like to run things from my terminal so that's what this will be.
 - [Gelbooru](https://gelbooru.com)
 - [e621](https://e621.net)
 # Usage
-Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.0/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.0/booru_cli)  
+Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.0/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.1/booru_cli)  
 
 Navigate to where the file was downloaded (usually `cd Downloads`) and then
 ```
