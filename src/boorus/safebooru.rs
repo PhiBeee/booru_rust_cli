@@ -97,7 +97,7 @@ pub fn run_safebooru(config: SafebooruConfig) {
 
         // When we reach the end of the results for that tag combination
         let length = images.len() as i64;
-        if length < images_left { images_left = length };
+        if length < REQUEST_CAP { images_left = length };
 
         // Remove the amount of images to skip from the results
         if images_to_skip != 0 { 
@@ -107,6 +107,10 @@ pub fn run_safebooru(config: SafebooruConfig) {
         
         images_left = download_images(images, images_left);
         images_to_skip = 0;
+
+        if images_left <= 0 {
+            break;
+        }
     }
     println!("\r\nFinished! You can find the images in images/safebooru");
 }

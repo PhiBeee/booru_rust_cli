@@ -94,9 +94,10 @@ pub fn run_gelbooru(config: GelbooruConfig) {
         let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", images_left, tags, page);
         // Get image urls
         let mut images = get_images(get_request);
-
+        
+        // Check if we have reached the end of the posts under the given tags
         let length = images.len() as i64;
-        if length < images_left { images_left = length};
+        if length < REQUEST_CAP { images_left = length};
 
         // Remove the amount of images to skip from the results
         if images_to_skip != 0 { 
@@ -106,6 +107,10 @@ pub fn run_gelbooru(config: GelbooruConfig) {
 
         images_left = download_images(images, images_left);
         images_to_skip = 0;
+
+        if images_left <= 0 {
+            break;
+        }
     }
     println!("\r\nFinished! You can find the images in images/gelbooru");
 }

@@ -102,7 +102,7 @@ pub fn run_e621(config: E621Config) {
         let mut images = get_images(get_request).posts;
 
         let length = images.len() as i64;
-        if length < images_left { images_left = length};
+        if length < REQUEST_CAP { images_left = length};
 
         // Remove the amount of images to skip from the results
         if images_to_skip != 0 { 
@@ -112,6 +112,10 @@ pub fn run_e621(config: E621Config) {
 
         images_left = download_images(images, images_left);
         images_to_skip = 0;
+
+        if images_left <= 0 {
+            break;
+        }
     }
     println!("\r\nFinished! You can find the images in images/e621");
 }
