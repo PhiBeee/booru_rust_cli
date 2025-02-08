@@ -28,7 +28,7 @@ impl KonachanConfig {
             for i in 2..=arg_amount-1 {
                 let current_arg = args[i].as_str();
                 match current_arg {
-                    "safe" | "-sfw"       => tags.push_str(" rating:general"),
+                    "safe" | "-sfw"       => tags.push_str(" rating:safe"),
                     "questionable" | "-q" => tags.push_str(" rating:questionable"),
                     "+score" | "+s"       => tags.push_str(" order:score_asc"),
                     "-score" | "-s"       => tags.push_str(" order:score"),
