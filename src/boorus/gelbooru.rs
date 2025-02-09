@@ -13,6 +13,8 @@ pub fn run_gelbooru(config: BooruConfig) {
     // Make sure we get enough images in case the amount requested is lower than the get cap
     if images_left < REQUEST_CAP { images_left += images_to_skip };
 
+    println!("{tags}");
+
     for page in 0..config.pid {
         // Format the get request using given parameters
         let get_request = format!("https://gelbooru.com/index.php?page=dapi&json=1&s=post&q=index&limit={}&tags={}&pid={}", images_left, tags, page);
@@ -47,14 +49,14 @@ async fn get_images(get_request: String) -> Vec<GelbooruPost>{
                     eprintln!("Error getting a response from the API: {err}");
                     process::exit(1);
                 })
-                .json::<Vec<GelbooruPost>>()
+                .json::<GelbooruAPI>()
                 .await
                 .unwrap_or_else(|err|{
                     eprintln!("No posts under the given tags, double check they exist or make the search less specifc: {err}");
                     process::exit(1);
                 });
     
-    response
+    response.post
 }
 
 fn download_images(posts: Vec<GelbooruPost>, mut images_left: i64) -> i64 {
@@ -85,6 +87,11 @@ fn download_images(posts: Vec<GelbooruPost>, mut images_left: i64) -> i64 {
 }
 
 // API structs so the responses are turned into structs which are nicer to deal with
+#[derive(serde::Deserialize, Debug)]
+struct GelbooruAPI {
+	post: Vec<GelbooruPost>,
+}
+
 #[derive(serde::Deserialize, Debug)]
 struct GelbooruPost {
     file_url: String,
