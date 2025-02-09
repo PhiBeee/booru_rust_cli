@@ -1,80 +1,9 @@
+use super::booru_config::BooruConfig;
 use std::{process,io::Write};
 
 const REQUEST_CAP: i64 = 1000;
 
-pub struct SafebooruConfig {
-    image_amount: i64,
-    tags: String,
-    pid: i64,
-    images_to_skip: i64,
-}
-
-impl SafebooruConfig {
-    pub fn build(args: &[String]) -> Result<SafebooruConfig, &'static str> {
-        let arg_amount = args.len(); // Save this here to avoid recalculating it everytime
-        if arg_amount < 2 {
-            return Err("Not enough arguments");
-        }
-        let image_amount = args[0].clone().parse::<i64>().unwrap_or_else(|_|{
-            eprintln!("Your first parameter is not a number!");
-            process::exit(1);
-        });
-        let mut tags = args[1].clone();
-
-        let mut images_to_skip = 0;
-        // handle extra optional args here
-        if arg_amount > 2 {
-            for i in 2..=arg_amount-1 {
-                let current_arg = args[i].as_str();
-                match current_arg {
-                    "safe" | "-sfw"       => tags.push_str(" rating:general"),
-                    "questionable" | "-q" => tags.push_str(" rating:questionable"),
-                    "+score" | "+s"       => tags.push_str(" sort:score:asc"),
-                    "-score" | "-s"       => tags.push_str(" sort:score:desc"),
-                    "oldest" | "-o"       => tags.push_str(" sort:id:asc"),
-                    "newest" | "-ns"      => tags.push_str(" sort:id:desc"),
-                    "skip"                => {
-                        // Make sure there is at least one more arg in the array
-                        if arg_amount >= i+2 { 
-                            images_to_skip = args[i+1].clone().parse::<i64>().unwrap_or_else(|err| {
-                                eprintln!("Please specify an amount of images to be skipped: {err}");
-                                process::exit(1);
-                            })
-                        }
-                        // Let the user know 
-                        else { println!("No amount was given after the skip option, no images will be skipped") };
-                    }
-                    _ => ()
-                }
-            }
-        }
-
-        let mut pid;
-        if image_amount%REQUEST_CAP != 0 {
-            pid = image_amount / REQUEST_CAP + 1;
-        } else {
-            pid = image_amount / REQUEST_CAP;
-        }
-
-        if images_to_skip%REQUEST_CAP != 0 {
-            if images_to_skip > REQUEST_CAP {
-                pid += images_to_skip / REQUEST_CAP + 1;
-            }
-        } else {
-            pid += images_to_skip / REQUEST_CAP;
-        }
-
-        Ok(SafebooruConfig{
-                image_amount,
-                tags,
-                pid,
-                images_to_skip,
-            }  
-        )   
-    }
-}
-
-pub fn run_safebooru(config: SafebooruConfig) {
+pub fn run_safebooru(config: BooruConfig) {
     let _ = check_file_path().unwrap_or_else(|err| {
         eprintln!("Problem with download directory: {err}");
         process::exit(1);

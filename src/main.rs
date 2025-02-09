@@ -54,28 +54,28 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
         else {
             match booru {
                 0 => {
-                    let config = SafebooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    let config = BooruConfig::build(&args[2..], 1000, 0).unwrap_or_else(|err|{
                         eprintln!("Problem parsing arguments: {err}");
                         process::exit(1);
                     });
                     run_safebooru(config);
                 },
                 1 => {
-                    let config = GelbooruConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    let config = BooruConfig::build(&args[2..], 100, 1).unwrap_or_else(|err|{
                         eprintln!("Problem parsing arguments: {err}");
                         process::exit(1);
                     });
                     run_gelbooru(config);
                 },
                 2 => {
-                    let config = E621Config::build(&args[2..]).unwrap_or_else(|err|{
+                    let config = BooruConfig::build(&args[2..], 320, 2).unwrap_or_else(|err|{
                         eprintln!("Problem parsing arguments: {err}");
                         process::exit(1);
                     });
                     run_e621(config);
                 }
                 3 => {
-                    let config = KonachanConfig::build(&args[2..]).unwrap_or_else(|err|{
+                    let config = BooruConfig::build(&args[2..], 1000, 3).unwrap_or_else(|err|{
                         eprintln!("Problem parsing arguments: {err}");
                         process::exit(1);
                     });
