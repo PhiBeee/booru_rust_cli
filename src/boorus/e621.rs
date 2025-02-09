@@ -5,11 +5,6 @@ use reqwest::header::*;
 const REQUEST_CAP: i64 = 320;
 
 pub fn run_e621(config: BooruConfig) {
-    let _ = check_file_path().unwrap_or_else(|err| {
-        eprintln!("Problem with download directory: {err}");
-        process::exit(1);
-    });
-
     let tags = config.tags;
     let mut images_left = config.image_amount;
     // Rust rounds down no matter what so this is great
@@ -92,18 +87,6 @@ fn download_images(posts: Vec<E621Post>, mut images_left: i64) -> i64{
         images_left -= 1;
     }
     images_left
-}
-
-fn check_file_path() -> std::io::Result<()>{
-    match std::fs::exists("images/e621/") {
-        Ok(true) => (),
-        Ok(false) => {
-            println!("Making new folder to save images to (images/e621)");
-            std::fs::create_dir("images/e621")?;
-        }
-        Err(err) => { return Err(err);}
-    }
-    Ok(())
 }
 
 #[derive(serde::Deserialize, Debug)]
