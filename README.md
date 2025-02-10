@@ -11,8 +11,10 @@ I like to run things from my terminal so that's what this will be.
 - [Safebooru](https://safebooru.org)
 - [Gelbooru](https://gelbooru.com)
 - [e621](https://e621.net)
+- [Konachan.net](https://konachan.net/)
+- [Danbooru](https://danbooru.donmai.us/)
 # Usage
-Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.1/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.1/booru_cli)  
+Download the executable from the releases for your platform [Windows](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.2/booru_cli.exe) or [Linux](https://github.com/PhiBeee/booru_rust_cli/releases/download/1.2/booru_cli)  
 
 Navigate to where the file was downloaded (usually `cd Downloads`) and then
 ```
@@ -39,5 +41,3 @@ Navigate to the directory and run:
 cargo build -r
 ```  
 This should create an executable in the target folder.
-# To-do's
-- Add support for more image websites
