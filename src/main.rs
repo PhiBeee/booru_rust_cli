@@ -30,6 +30,9 @@ fn main() {
             },
             "konachan" | "-k" => {
                 check_args_for_booru(3, &args);
+            },
+            "danbooru" | "-d" => {
+                check_args_for_booru(4, &args);
             }
             _ => {
                 println!("Please specify which booru to use ");
@@ -48,6 +51,7 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
                 1 => gelbooru_options(),
                 2 => e621_options(),
                 3 => konachan_options(),
+                4 => danbooru_options(),
                 _ => (),
             }
         }
@@ -73,13 +77,20 @@ fn check_args_for_booru(booru: i8, args: &[String]) {
                         process::exit(1);
                     });
                     run_e621(config);
-                }
+                },
                 3 => {
                     let config = BooruConfig::build(&args[2..], 1000, 3).unwrap_or_else(|err|{
                         eprintln!("Problem parsing arguments: {err}");
                         process::exit(1);
                     });
                     run_konachan(config);
+                },
+                4 => {
+                    let config = BooruConfig::build(&args[2..], 200, 4).unwrap_or_else(|err|{
+                        eprintln!("Problem parsing arguments: {err}");
+                        process::exit(1);
+                    });
+                    run_danbooru(config);
                 }
                 _ => (), // This function should never land here 
             }

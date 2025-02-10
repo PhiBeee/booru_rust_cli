@@ -97,3 +97,26 @@ pub fn konachan_options() {
 
     println!("{options_text}");
 }
+
+pub fn danbooru_options() {
+    let options_text = 
+    "
+    [OPTIONS]\n
+    Rating:\n
+    safe, -sfw          This will return only sfw images\n
+    questionable, -q    This will return only questionable images\n
+    sensitive, -sen     This will return only sensitive images\n
+    explicit, -e        This will return only explicit images\n
+    If you want to download any type of image don't add any of the above options\n
+    Filtering:\n
+    oldest, -o          This will order results by oldest first\n
+    newest, -ns         This will order results by newest first\n
+    +score, +s          This will order results by lowest score first\n
+    -score, -s          This will order results by highest score first\n
+    File type:\n
+    You can optionally add one or multiple filetypes to filter by to only download those types.\n
+    Supported types: png, jpg, gif, webm\n    
+    ";
+
+    println!("{options_text}");
+}

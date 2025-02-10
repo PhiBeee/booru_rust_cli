@@ -35,6 +35,9 @@ impl BooruConfig {
                 },
                 3 => {
                     tags = konachan_extra_args(args, &mut images_to_skip, tags, arg_amount);
+                },
+                4 => {
+                    tags = danbooru_extra_args(args, &mut images_to_skip, tags, arg_amount);
                 }
                 _ => {
                     eprintln!("Soemthing went horribly wrong we should not be here");
@@ -67,6 +70,7 @@ impl BooruConfig {
             1 => download_path = String::from("images/gelbooru"),
             2 => download_path = String::from("images/e621"),
             3 => download_path = String::from("images/konachan"),
+            4 => download_path = String::from("images/danbooru"),
             _ => {
                 eprintln!("Soemthing went horribly wrong we should not be here");
                 process::exit(1);
@@ -185,6 +189,39 @@ fn konachan_extra_args(args: &[String], images_to_skip: &mut i64, mut tags: Stri
             "newest" | "-ns"      => tags.push_str(" order:id_desc"),
             "landscape" | "-l"    => tags.push_str(" order:landscape"),
             "portrait" | "-p"     => tags.push_str(" order:portrait"),
+            "skip"                => {
+                // Make sure there is at least one more arg in the array
+                if arg_amount >= i+2 { 
+                    *images_to_skip = args[i+1].clone().parse::<i64>().unwrap_or_else(|err| {
+                        eprintln!("Please specify an amount of images to be skipped: {err}");
+                        process::exit(1);
+                    })
+                }
+                // Let the user know 
+                else { println!("No amount was given after the skip option, no images will be skipped") };
+            }
+            _ => ()
+        }
+    }
+    tags
+}
+
+fn danbooru_extra_args(args: &[String], images_to_skip: &mut i64, mut tags: String, arg_amount: usize) -> String {
+    for i in 2..=arg_amount-1 {
+        let current_arg = args[i].as_str();
+        match current_arg {
+            "safe" | "-sfw"       => tags.push_str(" rating:general"),
+            "questionable" | "-q" => tags.push_str(" rating:questionable"),
+            "sensitive" | "-sen"  => tags.push_str(" rating:sensitive"),
+            "nsfw" | "-n"         => tags.push_str(" rating:explicit"),
+            "+score" | "+s"       => tags.push_str(" order:score_asc"),
+            "-score" | "-s"       => tags.push_str(" order:score"),
+            "oldest" | "-o"       => tags.push_str(" order:id"),
+            "newest" | "-ns"      => tags.push_str(" order:id_desc"),
+            "png"                 => tags.push_str(" filetype:png"),
+            "jpg"                 => tags.push_str(" filetype:jpg"),
+            "gif"                 => tags.push_str(" filetype:gif"),
+            "webm"                => tags.push_str(" filetype:webm"),
             "skip"                => {
                 // Make sure there is at least one more arg in the array
                 if arg_amount >= i+2 { 
