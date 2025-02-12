@@ -9,6 +9,8 @@ pub fn help() {
     gelbooru, -g        Get images from gelbooru.com\n
     safebooru, -s       Get images from safebooru.org\n
     e621, -e            Get images from e621.net\n
+    konachan, -k        Get images from konachan.net\n
+    danbooru, -d        Get imagess from danbooru.donmai.us\n
     [OPTIONS]\n
     skip <amount>       Skip the first <amount> images\n
     Check the respective booru help command for detailed list of options.\n
@@ -19,6 +21,8 @@ pub fn help() {
     safebooru help/-h   Will show you the options for safebooru\n
     gelbooru help/-h    Will show you the options for gelbooru\n
     e621 help/-h        Will show you the options for e621\n
+    konachan help/-h    Will show you the options for konachan\n
+    danbooru help/-h    Will show you the options for danbooru\n
     ";
 
     println!("{help_text}");
